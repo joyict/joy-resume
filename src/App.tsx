@@ -16,18 +16,14 @@ function App() {
       if (!element) return;
 
       const isCompressed = format === 'pdf-compressed';
-      
-      // Add temporary class to force better page breaks
       element.classList.add('generating-pdf');
-      
-      // Wait for any pending state updates/renders
-      await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Calculate dimensions
+      // Pre-calculate dimensions
       const a4Width = 210; // mm
       const a4Height = 297; // mm
-      const pageHeight = element.offsetHeight * (a4Width / element.offsetWidth);
-      const pageCount = Math.ceil(pageHeight / a4Height);
+
+      // Wait for layout updates
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const canvas = await html2canvas(element, {
         scale: isCompressed ? 1.5 : 2,
@@ -38,54 +34,52 @@ function App() {
         height: element.scrollHeight,
         windowHeight: element.scrollHeight,
         onclone: (doc, clonedElement) => {
-          // Remove the Promise wrapper - handle synchronously
+          // Set up the clone
           clonedElement.style.height = `${element.scrollHeight}px`;
           clonedElement.style.position = 'relative';
           clonedElement.style.transform = 'none';
-          
-          // Force better page breaks
-          const sections = clonedElement.querySelectorAll('section');
-          sections.forEach(section => {
-            section.style.pageBreakInside = 'avoid';
-            section.style.breakInside = 'avoid';
-          });
 
-          // Ensure each job card stays together
-          const jobCards = clonedElement.querySelectorAll('.experience-section > div');
-          jobCards.forEach(card => {
-            card.style.pageBreakInside = 'avoid';
-            card.style.breakInside = 'avoid';
-          });
-
-          // Add spacing between experience items
-          const lastExperienceItem = clonedElement.querySelector('.experience-section > div:last-child');
-          if (lastExperienceItem) {
-            lastExperienceItem.style.marginBottom = '40px';
+          // Find EO experience item and force page break after it
+          const experienceSection = clonedElement.querySelector('.experience-section');
+          if (experienceSection) {
+            const experienceItems = experienceSection.children;
+            Array.from(experienceItems).forEach((item, index) => {
+              const htmlItem = item as HTMLElement;
+              htmlItem.style.pageBreakInside = 'avoid';
+              htmlItem.style.breakInside = 'avoid';
+              
+              // Add large margin after EO (4th item) to force Verhoek to next page
+              if (index === 3) {
+                htmlItem.style.marginBottom = '150mm'; // Use mm to match PDF dimensions
+                htmlItem.style.pageBreakAfter = 'always';
+                htmlItem.style.breakAfter = 'always';
+              }
+            });
           }
 
-          // Force skills section to start on new page
+          // Ensure skills section starts fresh
           const skillsSection = clonedElement.querySelector('.skills-grid')?.parentElement;
           if (skillsSection) {
             skillsSection.style.pageBreakBefore = 'always';
-            skillsSection.style.marginTop = '20px';
+            skillsSection.style.marginTop = '40px';
           }
         }
       });
+
+      // Calculate PDF dimensions and generate
+      const imgWidth = a4Width;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageCount = Math.ceil(imgHeight / a4Height);
 
       const imgQuality = isCompressed ? 0.85 : 1.0;
       const imgFormat = isCompressed ? 'JPEG' : 'PNG';
       const imgData = canvas.toDataURL(`image/${imgFormat.toLowerCase()}`, imgQuality);
 
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = a4Width;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
+      
       for (let page = 0; page < pageCount; page++) {
-        if (page > 0) {
-          pdf.addPage();
-        }
-        const position = -page * a4Height;
-        pdf.addImage(imgData, imgFormat, 0, position, imgWidth, imgHeight);
+        if (page > 0) pdf.addPage();
+        pdf.addImage(imgData, imgFormat, 0, -page * a4Height, imgWidth, imgHeight);
       }
 
       pdf.save(`jorrit-harmanny-resume${isCompressed ? '-compressed' : ''}.pdf`);
@@ -94,6 +88,37 @@ function App() {
       setIsGenerating(false);
     }
   };
+
+  const createProjectSection = (title: string, intro: string, bullets: string) => [
+    new Paragraph({
+      spacing: { before: 200 },
+      children: [
+        new TextRun({
+          text: title,
+          bold: true,
+        })
+      ]
+    }),
+    new Paragraph({
+      spacing: { before: 100 },
+      children: [
+        new TextRun(intro)
+      ]
+    }),
+    ...bullets
+      .split('\n')
+      .map(bullet => 
+        new Paragraph({
+          spacing: { before: 100 },
+          bullet: {
+            level: 0
+          },
+          children: [
+            new TextRun(bullet.trim().replace('• ', ''))
+          ]
+        })
+      )
+  ];
 
   const generateWord = async () => {
     setIsGenerating(true);
@@ -204,7 +229,17 @@ function App() {
                 company: "Evangelische Omroep (EO)",
                 period: "Sep 2017 - Apr 2021",
                 location: "Hilversum, Netherlands",
-                description: "Part of the team that led a major enterprise-wide migration project transitioning the post-production environment to a new editing suite. Key achievements included implementing new storage infrastructure, server deployments, and workflow optimization. Provided comprehensive training to editorial staff while maintaining 24/7 system uptime and security protocols."
+                description: "Responsible for managing and maintaining the broadcast post-production infrastructure and systems.\n" + 
+                  "Key responsibilities included:\n" +
+                  "• Maintained and optimized post-production systems serving 100+ media professionals\n" +
+                  "• Implemented remote working capabilities during COVID-19, enabling seamless transition to home-based editing\n" +
+                  "• Performed continuous system upgrades and maintenance to ensure 24/7 availability\n" +
+                  "• Automated routine tasks and workflows to improve efficiency\n" +
+                  "• Managed storage systems and media archives\n" +
+                  "• Provided technical support and training for editorial staff\n" +
+                  "• Conducted research and testing for new technologies and solutions\n" +
+                  "• Maintained monitoring systems and implemented proactive maintenance procedures\n" +
+                  "• Coordinated with vendors and internal teams for system integrations"
               },
               {
                 title: "Data Analyst",
@@ -222,9 +257,55 @@ function App() {
                   new TextRun({ text: `\n${job.location}`, size: 20 }),
                 ]
               }),
-              new Paragraph({
-                children: [new TextRun(job.description)]
-              }),
+              // Split description into paragraphs if it contains bullet points
+              ...job.description.includes('•') 
+                ? [
+                    // Main description before bullets (as separate paragraph)
+                    new Paragraph({
+                      spacing: { after: 200 },
+                      children: [
+                        new TextRun(
+                          job.description.split('\n')[0].trim()
+                        )
+                      ]
+                    }),
+                    // If there's a "Key responsibilities included:" line
+                    ...(job.description.includes('Key responsibilities included:') 
+                      ? [
+                          new Paragraph({
+                            spacing: { before: 200 },
+                            children: [
+                              new TextRun({
+                                text: "Key responsibilities included:",
+                                bold: true
+                              })
+                            ]
+                          })
+                        ] 
+                      : []
+                    ),
+                    // Each bullet point as its own paragraph
+                    ...job.description
+                      .split('•')
+                      .slice(1)
+                      .map(bullet => 
+                        new Paragraph({
+                          spacing: { before: 100 },
+                          bullet: {
+                            level: 0
+                          },
+                          children: [
+                            new TextRun(bullet.trim())
+                          ]
+                        })
+                      )
+                  ]
+                : [
+                    // Single paragraph for descriptions without bullets
+                    new Paragraph({
+                      children: [new TextRun(job.description)]
+                    })
+                  ]
             ]).flat(),
 
             // Skills section with categories
@@ -330,18 +411,44 @@ function App() {
                 })
               ]
             }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Cloud Migration & Infrastructure Modernization\n",
-                  bold: true,
-                }),
-                new TextRun(
-                  "Led complete infrastructure modernization projects for multiple clients, including cloud migrations, " +
-                  "security improvements, and implementation of modern DevOps practices."
-                )
-              ]
-            }),
+
+            // Use the function for each project
+            ...createProjectSection(
+              "Broadcast Post-Production Infrastructure Transformation",
+              "Led a major year-long transformation project at a national broadcaster, modernizing the entire post-production infrastructure. The project scope included:",
+              "• Complete platform transition from Unix to Windows-based editing environment for 100+ workstations\n" +
+              "• Implementation of new media asset management system and editorial workflows\n" +
+              "• Deployment of 200TB+ high-performance storage infrastructure with redundancy\n" +
+              "• Network infrastructure redesign and optimization\n" +
+              "• Development of automated content distribution workflows\n" +
+              "• Creation and execution of comprehensive training program\n" +
+              "• Coordination with multiple vendors for system integration\n" +
+              "• Maintaining 24/7 operations during the entire transition period"
+            ),
+
+            ...createProjectSection(
+              "Enterprise Kubernetes Migration",
+              "Successfully migrated an organization's critical workloads from traditional VM infrastructure to a highly available Kubernetes cluster. Key achievements:",
+              "• Designed and implemented redundant Kubernetes architecture\n" +
+              "• Containerized legacy applications for modern deployment\n" +
+              "• Established automated scaling and self-healing capabilities\n" +
+              "• Improved system reliability and reduced infrastructure costs\n" +
+              "• Implemented monitoring and logging solutions\n" +
+              "• Reduced deployment times from hours to minutes\n" +
+              "• Created comprehensive documentation"
+            ),
+
+            ...createProjectSection(
+              "Windows Application CI/CD Pipeline",
+              "Developed an automated CI/CD pipeline for native Windows applications, transforming the delivery process from manual to fully automated. Key features:",
+              "• Automated build, test, and deployment processes\n" +
+              "• Integrated code quality and security scanning\n" +
+              "• Automated versioning and release notes generation\n" +
+              "• One-click deployment to customer environments\n" +
+              "• Reduced deployment errors by eliminating manual steps\n" +
+              "• Cut delivery time from days to minutes\n" +
+              "• Implemented automated rollback capabilities"
+            ),
           ]
         }]
       });
@@ -608,10 +715,16 @@ function App() {
                 </div>
               </div>
               <p className="text-gray-600">
-                Have been part of the team that did a major enterprise-wide migration project transitioning the post-production environment to a new editing suite.
-                Key achievements included implementing new storage infrastructure, server deployments, and workflow optimization.
-                Provided comprehensive training to editorial staff while maintaining 24/7 system uptime and security protocols.
-                Specialized in automation solutions and technical support for the media production environment.
+                Responsible for managing and maintaining the broadcast post-production infrastructure and systems. Key responsibilities included:
+                • Maintained and optimized post-production systems serving 100+ media professionals
+                • Implemented remote working capabilities during COVID-19, enabling seamless transition to home-based editing
+                • Performed continuous system upgrades and maintenance to ensure 24/7 availability
+                • Automated routine tasks and workflows to improve efficiency
+                • Managed storage systems and media archives
+                • Provided technical support and training for editorial staff
+                • Conducted research and testing for new technologies and solutions
+                • Maintained monitoring systems and implemented proactive maintenance procedures
+                • Coordinated with vendors and internal teams for system integrations
               </p>
             </div>
 
@@ -751,13 +864,62 @@ function App() {
           </div>
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Broadcast Post-Production Infrastructure Transformation</h3>
+              <p className="text-gray-600">
+                Led a major year-long transformation project at a national broadcaster, modernizing the entire post-production infrastructure. 
+                The project scope included:
+                • Complete platform transition from Unix to Windows-based editing environment for 100+ workstations and editorial suites.
+                • Implementation of new media asset management system and editorial workflows
+                • Deployment of 200TB+ high-performance storage infrastructure with redundancy
+                • Network infrastructure redesign and optimization
+                • Development of automated content distribution workflows
+                • Creation and execution of comprehensive training program for editorial and mediamanagement staff
+                • Coordination with multiple vendors for system integration
+                • Maintaining 24/7 operations during the entire transition period
+                Successfully delivered the project while keeping existing production workflows operational, resulting in improved efficiency
+                and modernized content creation capabilities.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Cloud Migration & Infrastructure Modernization</h3>
               <p className="text-gray-600">
                 Led complete infrastructure modernization projects for multiple clients, including cloud migrations, 
                 security improvements, and implementation of modern DevOps practices.
               </p>
             </div>
-            {/* Add more project cards as needed */}
+
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Enterprise Kubernetes Migration</h3>
+              <p className="text-gray-600">
+                Successfully migrated an organization's critical workloads from traditional VM infrastructure to a highly available 
+                Kubernetes cluster. Key achievements:
+                • Designed and implemented redundant Kubernetes architecture
+                • Containerized legacy applications for modern deployment
+                • Established automated scaling and self-healing capabilities
+                • Improved system reliability and reduced infrastructure costs
+                • Implemented monitoring and logging solutions
+                • Reduced deployment times from hours to minutes
+                • Created comprehensive documentation
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Windows Application CI/CD Pipeline</h3>
+              <p className="text-gray-600">
+                Developed an automated CI/CD pipeline for native Windows applications, transforming the delivery process from manual to 
+                fully automated. Key features:
+                • Automated build, test, and deployment processes
+                • Integrated code quality and security scanning
+                • Automated versioning and release notes generation
+                • One-click deployment to customer environments
+                • Reduced deployment errors by eliminating manual steps
+                • Cut delivery time from days to minutes
+                • Implemented automated rollback capabilities
+                The solution significantly improved development efficiency and reduced human errors in the deployment process.
+              </p>
+            </div>
           </div>
         </section>
       </main>

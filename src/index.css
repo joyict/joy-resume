@@ -3,30 +3,43 @@
 @tailwind utilities;
 
 @media print {
+  /* Force page breaks and spacing */
   section {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
-  
+
   .no-break {
     page-break-inside: avoid;
     break-inside: avoid;
   }
 
   .skills-grid {
-    page-break-before: always;
-    break-before: always;
-    margin-top: 2rem;
+    page-break-before: always !important;
+    break-before: always !important;
+    margin-top: 2.5rem !important;
   }
 
   .experience-section > div {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .experience-section > div:last-child {
     margin-bottom: 2.5rem;
+  }
+
+  /* Force page breaks at specific points */
+  .experience-section > div:nth-child(3) {
+    margin-bottom: 3.75rem; /* 60px */
+  }
+
+  /* Ensure proper spacing between experience items */
+  .experience-section > div:nth-child(4) {
+    margin-bottom: 50vh !important; /* Force large gap */
+    page-break-after: always !important;
+    break-after: always !important;
   }
 }
 
