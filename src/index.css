@@ -5,9 +5,36 @@
 @media print {
   section {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
   
   .no-break {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
+
+  .skills-grid {
+    page-break-before: always;
+    break-before: always;
+    margin-top: 2rem;
+  }
+
+  .experience-section > div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 1rem;
+  }
+
+  .experience-section > div:last-child {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* Dropdown styles */
+select option {
+  @apply bg-emerald-700 text-white py-2 px-3;
+}
+
+select:focus {
+  @apply outline-none ring-2 ring-emerald-500;
 }
