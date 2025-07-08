@@ -2,52 +2,220 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary: #10B981;       /* Joy ICT Green */
+  --primary-light: #34D399; /* Joy ICT Light Green */
+  --primary-dark: #059669;  /* Joy ICT Dark Green */
+  --text-primary: #1F2937;
+  --text-secondary: #4B5563;
+  --background: #F3F4F6;
+  --background-alt: #FFFFFF;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Animation for cards */
+.transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+/* Enhanced skill bar animations */
+.skill-bar-container {
+  position: relative;
+}
+
+/* Smooth gradient transitions */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-12deg);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-out;
+}
+
+/* Focus styles for accessibility */
+.skill-bar-container div[role="button"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 0.75rem;
+}
+
+/* Custom animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tilt {
+  0%, 50%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-tilt {
+  animation: tilt 10s infinite linear;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+/* Gradient text animation */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-animated {
+  background: linear-gradient(-45deg, #374151, #10B981, #1B365D, #34D399);
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating animation for particles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Staggered animation delays */
+.animate-float:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.animate-float:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.animate-float:nth-child(4) {
+  animation-delay: 1.5s;
+}
+
+/* PDF Export Styles - Only applied during PDF generation */
+body.pdf-export-mode {
+  background-color: white !important;
+}
+
+body.pdf-export-mode .pdf-export-hide {
+  display: none !important;
+}
+
+body.pdf-export-mode #resume-content {
+  background-color: white !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.pdf-export-mode section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 2rem;
+}
+
+body.pdf-export-mode .container {
+  max-width: none !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Print styles */
 @media print {
-  /* Force page breaks and spacing */
+  .pdf-export-hide {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white;
+  }
+  
   section {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .no-break {
-    page-break-inside: avoid;
     break-inside: avoid;
+    page-break-inside: avoid;
   }
-
-  .skills-grid {
-    page-break-before: always !important;
-    break-before: always !important;
-    margin-top: 2.5rem !important;
-  }
-
-  .experience-section > div {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    margin-bottom: 1.5rem;
-  }
-
-  .experience-section > div:last-child {
-    margin-bottom: 2.5rem;
-  }
-
-  /* Force page breaks at specific points */
-  .experience-section > div:nth-child(3) {
-    margin-bottom: 3.75rem; /* 60px */
-  }
-
-  /* Ensure proper spacing between experience items */
-  .experience-section > div:nth-child(4) {
-    margin-bottom: 50vh !important; /* Force large gap */
-    page-break-after: always !important;
-    break-after: always !important;
-  }
-}
-
-/* Dropdown styles */
-select option {
-  @apply bg-emerald-700 text-white py-2 px-3;
-}
-
-select:focus {
-  @apply outline-none ring-2 ring-emerald-500;
 }
