@@ -558,10 +558,31 @@ function App() {
         </div>
       </header>
       
-      
+      {/* Sticky Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="flex flex-wrap justify-center gap-4 py-3">
+            <a href="#about" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+              About
+            </a>
+            <a href="#experience" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+              Experience
+            </a>
+            <a href="#skills" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+              Skills
+            </a>
+            <a href="#education" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+              Education
+            </a>
+            <a href="#projects" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+              Projects
+            </a>
+          </div>
+        </div>
+      </nav>
 
       <main className="container mx-auto px-4 max-w-5xl py-12">
-        <section className="mb-12">
+        <section id="about" className="mb-12">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Personal Information</h2>
             <div className="flex-1 h-px bg-gray-200"></div>
@@ -607,7 +628,7 @@ function App() {
         </section>
 
         {/* Experience Section */}
-        <section className="mb-12 experience-section">
+        <section id="experience" className="mb-12 experience-section">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Experience</h2>
             <div className="flex-1 h-px bg-gray-200"></div>
@@ -757,7 +778,7 @@ function App() {
         </section>
 
         {/* Skills Section */}
-        <section className="mb-12">
+        <section id="skills" className="mb-12">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Skills</h2>
             <div className="flex-1 h-px bg-gray-200"></div>
@@ -812,7 +833,7 @@ function App() {
         </section>
 
         {/* Education Section */}
-        <section className="mb-12">
+        <section id="education" className="mb-12">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Education & Courses taken</h2>
             <div className="flex-1 h-px bg-gray-200"></div>
@@ -857,7 +878,7 @@ function App() {
         </section>
 
         {/* Key Projects Section */}
-        <section className="mb-12">
+        <section id="projects" className="mb-12">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Key Projects</h2>
             <div className="flex-1 h-px bg-gray-200"></div>
