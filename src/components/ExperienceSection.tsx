@@ -10,7 +10,7 @@ interface ExperienceSectionProps {
 
 const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, translations: t }) => {
   return (
-    <section id="experience" className="py-16 bg-gray-50">
+    <section id="experience\" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="flex items-center mb-8 group">

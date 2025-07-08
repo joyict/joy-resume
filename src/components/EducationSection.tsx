@@ -10,7 +10,7 @@ interface EducationSectionProps {
 
 const EducationSection: React.FC<EducationSectionProps> = ({ education, translations: t }) => {
   return (
-    <section id="education" className="py-16 bg-gray-50">
+    <section id="education\" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="flex items-center mb-8 group">

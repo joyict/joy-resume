@@ -10,7 +10,7 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ data, translations: t }) => {
   return (
-    <section id="about" className="pt-24 pb-16 bg-hero-pattern bg-cover bg-center">
+    <section id="about\" className="pt-24 pb-16 bg-hero-pattern bg-cover bg-center">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden transform hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]">

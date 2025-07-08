@@ -62,7 +62,7 @@ const SkillBar: React.FC<SkillBarProps> = ({ level, maxLevel = 5, skillName, del
   return (
     <div ref={barRef} className="skill-bar-container">
       <div 
-        className="w-full h-3 rounded-full overflow-hidden cursor-pointer relative shadow-inner bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 transition-all duration-300 hover:shadow-lg"
+        className="w-full h-3 rounded-full overflow-hidden cursor-pointer relative shadow-inner bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 transition-all duration-300 hover:shadow-lg"
         onClick={handleClick}
         role="button"
         tabIndex={0}
@@ -74,8 +74,8 @@ const SkillBar: React.FC<SkillBarProps> = ({ level, maxLevel = 5, skillName, del
           }
         }}
       >
-        {/* Base gradient blue background - always visible */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
+        {/* Base gradient very light gray background - always visible */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
         
         {/* Animated accent color overlay */}
         <div 

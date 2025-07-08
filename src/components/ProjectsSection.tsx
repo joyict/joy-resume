@@ -10,7 +10,7 @@ interface ProjectsSectionProps {
 
 const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, translations: t }) => {
   return (
-    <section id="projects" className="py-16">
+    <section id="projects\" className="py-16">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="flex items-center mb-8 group">
